@@ -17,6 +17,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   build:
@@ -82,6 +83,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          exec > >(tee ci-commit.log) 2>&1
           ROOT="$(git rev-parse --show-toplevel)"
           APK=$(ls app/build/outputs/apk/debug/*.apk)
           mkdir -p "$ROOT/ci-artifacts"
@@ -94,23 +96,26 @@ jobs:
           else
             git -C "$ROOT" commit -m "CI: update Stryker debug APK artifact [skip ci]"
             git -C "$ROOT" pull --rebase origin "$GITHUB_REF_NAME"
-            git -C "$ROOT" push origin "HEAD:$GITHUB_REF_NAME"
+            git -C "$ROOT" push --verbose origin "HEAD:$GITHUB_REF_NAME"
           fi
 
-      - name: Save publish log on failure
+      - name: Report failure to diagnostics issue
         if: failure()
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           ROOT="$(git rev-parse --show-toplevel)"
-          mkdir -p "$ROOT/.github/build-logs"
-          if [ -f publish.log ]; then cp publish.log "$ROOT/.github/build-logs/stryker-publish.log"; else echo "publish.log was not created" > "$ROOT/.github/build-logs/stryker-publish.log"; fi
-          git config user.name "stryker-ci-bot"
-          git config user.email "actions@users.noreply.github.com"
-          git -C "$ROOT" add .github/build-logs/stryker-publish.log
-          git -C "$ROOT" commit -m "CI: record stryker publish failure log [skip stryker build]"
-          git -C "$ROOT" pull --rebase origin "$GITHUB_REF_NAME"
-          git -C "$ROOT" push origin "HEAD:$GITHUB_REF_NAME"
+          {
+            echo "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo "Commit: $GITHUB_SHA"
+            echo
+            echo '```'
+            for f in ci-commit.log publish.log; do
+              if [ -f "$f" ]; then echo "--- $f ---"; tail -c 6000 "$f"; else echo "(no $f)"; fi
+            done
+            echo '```'
+          } > failure-report.md
+          gh issue comment 24 --repo "$GITHUB_REPOSITORY" --body-file failure-report.md || true
 
       - name: Upload failure diagnostics
         if: failure()
