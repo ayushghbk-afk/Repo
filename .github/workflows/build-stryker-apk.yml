@@ -95,7 +95,9 @@ jobs:
             echo "APK unchanged, nothing to commit"
           else
             git -C "$ROOT" commit -m "CI: update Stryker debug APK artifact [skip ci]"
-            git -C "$ROOT" pull --rebase origin "$GITHUB_REF_NAME"
+            echo "--- dirty files before pull (expected: CRLF renormalization noise) ---"
+            git -C "$ROOT" status --porcelain | head -20 || true
+            git -C "$ROOT" pull --rebase --autostash origin "$GITHUB_REF_NAME"
             git -C "$ROOT" push --verbose origin "HEAD:$GITHUB_REF_NAME"
           fi
 
