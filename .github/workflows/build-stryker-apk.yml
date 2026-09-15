@@ -58,6 +58,18 @@ jobs:
           path: stryker/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
 
+      - name: Publish APK to rolling release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create stryker-apk-latest \
+            --target "$GITHUB_SHA" \
+            --title "Stryker debug APK (rolling)" \
+            --notes "Automated debug build of stryker/ at commit $GITHUB_SHA" \
+            --clobber || true
+          gh release upload stryker-apk-latest \
+            app/build/outputs/apk/debug/*.apk --clobber
+
       - name: Upload failure diagnostics
         if: failure()
         uses: actions/upload-artifact@v4

@@ -183,3 +183,7 @@ PoCs, etc.) are distributed under their own GPLv3-compatible licenses — see
 ## Disclaimer
 
 StrykerOSS is provided **for authorized security testing, education and research only**. You are responsible for complying with all applicable laws and obtaining explicit permission before testing any system or device you do not own. The authors accept no liability for misuse.
+
+## CI
+
+Debug APKs are built automatically by GitHub Actions (`.github/workflows/build-stryker-apk.yml`) and attached to the rolling `stryker-apk-latest` release.
