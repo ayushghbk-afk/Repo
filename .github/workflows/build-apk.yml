@@ -6,9 +6,13 @@ on:
     branches:
       - main
       - arena/**
+    paths-ignore:
+      - "stryker/**"
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - "stryker/**"
 
 permissions:
   contents: read
