@@ -8,11 +8,13 @@ on:
       - arena/**
     paths-ignore:
       - "stryker/**"
+      - "ci-artifacts/**"
   pull_request:
     branches:
       - main
     paths-ignore:
       - "stryker/**"
+      - "ci-artifacts/**"
 
 permissions:
   contents: read
