@@ -62,3 +62,6 @@ libs/
 app/src/main/jniLibs/
 dist/rootfs/layers/
 dist/rootfs/manifests/**.sig
+
+# Uploaded Stryker source archive (vendored under /stryker)
+/strykerapp-main.zip

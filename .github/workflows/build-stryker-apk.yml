@@ -1,0 +1,130 @@
+name: Build Stryker APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - arena/**
+    paths:
+      - "stryker/**"
+      - ".github/workflows/build-stryker-apk.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "stryker/**"
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  build:
+    name: Build Stryker Debug APK
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: stryker
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Install Android SDK components
+        run: |
+          SDKMANAGER="${ANDROID_SDK_ROOT:-$ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" "platforms;android-33" "build-tools;34.0.0" "ndk;25.1.8937393" "cmake;3.22.1" > /dev/null
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x gradlew
+
+      - name: Build Debug APK
+        run: ./gradlew :app:assembleDebug --no-daemon --stacktrace
+
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Stryker-debug-apk
+          path: stryker/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      - name: Publish APK to rolling release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          APK=$(ls app/build/outputs/apk/debug/*.apk)
+          set +e
+          if ! gh release view stryker-apk-latest > /dev/null 2>&1; then
+            gh release create stryker-apk-latest \
+              --target "$GITHUB_SHA" \
+              --title "Stryker debug APK (rolling)" \
+              --notes "Automated debug build of stryker/ at commit $GITHUB_SHA" \
+              --latest=false 2>&1 | tee publish.log
+            status=${PIPESTATUS[0]}
+            if [ $status -ne 0 ]; then exit $status; fi
+          fi
+          gh release upload stryker-apk-latest "$APK" --clobber 2>&1 | tee -a publish.log
+          status=${PIPESTATUS[0]}
+          set -e
+          exit $status
+
+      - name: Commit APK to ci-artifacts branch path
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          exec > >(tee ci-commit.log) 2>&1
+          ROOT="$(git rev-parse --show-toplevel)"
+          APK=$(ls app/build/outputs/apk/debug/*.apk)
+          mkdir -p "$ROOT/ci-artifacts"
+          cp "$APK" "$ROOT/ci-artifacts/stryker-app-debug.apk"
+          git config user.name "stryker-ci-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git -C "$ROOT" add -f ci-artifacts/stryker-app-debug.apk
+          if git -C "$ROOT" diff --cached --quiet; then
+            echo "APK unchanged, nothing to commit"
+          else
+            git -C "$ROOT" commit -m "CI: update Stryker debug APK artifact [skip ci]"
+            echo "--- dirty files before pull (expected: CRLF renormalization noise) ---"
+            git -C "$ROOT" status --porcelain | head -20 || true
+            git -C "$ROOT" pull --rebase --autostash origin "$GITHUB_REF_NAME"
+            git -C "$ROOT" push --verbose origin "HEAD:$GITHUB_REF_NAME"
+          fi
+
+      - name: Report failure to diagnostics issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ROOT="$(git rev-parse --show-toplevel)"
+          {
+            echo "Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo "Commit: $GITHUB_SHA"
+            echo
+            echo '```'
+            for f in ci-commit.log publish.log; do
+              if [ -f "$f" ]; then echo "--- $f ---"; tail -c 6000 "$f"; else echo "(no $f)"; fi
+            done
+            echo '```'
+          } > failure-report.md
+          gh issue comment 24 --repo "$GITHUB_REPOSITORY" --body-file failure-report.md || true
+
+      - name: Upload failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stryker-build-failure-diagnostics
+          path: |
+            stryker/app/build/reports/
+            stryker/terminal/build/reports/
+          if-no-files-found: ignore
