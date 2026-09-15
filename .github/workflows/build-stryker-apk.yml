@@ -62,13 +62,36 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create stryker-apk-latest \
-            --target "$GITHUB_SHA" \
-            --title "Stryker debug APK (rolling)" \
-            --notes "Automated debug build of stryker/ at commit $GITHUB_SHA" \
-            --clobber || true
-          gh release upload stryker-apk-latest \
-            app/build/outputs/apk/debug/*.apk --clobber
+          APK=$(ls app/build/outputs/apk/debug/*.apk)
+          set +e
+          if ! gh release view stryker-apk-latest > /dev/null 2>&1; then
+            gh release create stryker-apk-latest \
+              --target "$GITHUB_SHA" \
+              --title "Stryker debug APK (rolling)" \
+              --notes "Automated debug build of stryker/ at commit $GITHUB_SHA" \
+              --latest=false 2>&1 | tee publish.log
+            status=${PIPESTATUS[0]}
+            if [ $status -ne 0 ]; then exit $status; fi
+          fi
+          gh release upload stryker-apk-latest "$APK" --clobber 2>&1 | tee -a publish.log
+          status=${PIPESTATUS[0]}
+          set -e
+          exit $status
+
+      - name: Save publish log on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ROOT="$(git rev-parse --show-toplevel)"
+          mkdir -p "$ROOT/.github/build-logs"
+          if [ -f publish.log ]; then cp publish.log "$ROOT/.github/build-logs/stryker-publish.log"; else echo "publish.log was not created" > "$ROOT/.github/build-logs/stryker-publish.log"; fi
+          git config user.name "stryker-ci-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git -C "$ROOT" add .github/build-logs/stryker-publish.log
+          git -C "$ROOT" commit -m "CI: record stryker publish failure log [skip stryker build]"
+          git -C "$ROOT" pull --rebase origin "$GITHUB_REF_NAME"
+          git -C "$ROOT" push origin "HEAD:$GITHUB_REF_NAME"
 
       - name: Upload failure diagnostics
         if: failure()
