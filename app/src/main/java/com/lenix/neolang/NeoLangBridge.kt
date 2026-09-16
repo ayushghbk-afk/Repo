@@ -2,8 +2,8 @@ package com.lenix.neolang
 
 import com.lenix.neolang.frontend.LenixLangLexer
 import com.lenix.neolang.frontend.LenixLangParser
+import com.lenix.neolang.frontend.AstVisitor
 import com.lenix.neolang.frontend.ConfigVisitor
-import com.lenix.neolang.frontend.VisitorFactory
 import com.lenix.neolang.runtime.LenixLangContext
 import android.util.Log
 
@@ -38,9 +38,10 @@ object NeoLangBridge {
             val parser = LenixLangParser().apply { setInputSource(configText) }
             val ast = parser.parse()
 
-            val factory = VisitorFactory(ast)
-            val visitor = factory.createVisitor(ConfigVisitor()) as? ConfigVisitor
-            visitor?.getRootContext()
+            val callback = ConfigVisitor()
+            val visitor = AstVisitor(ast, callback)
+            visitor.start()
+            callback.getRootContext()
         } catch (e: Exception) {
             Log.e(TAG, "Failed to parse NeoLang config: ${e.message}", e)
             null
@@ -74,6 +75,6 @@ object NeoLangBridge {
                 desktop: "openbox"
             }
         """.trimIndent()
-        return parseConfig(defaultConfig) ?: LenixLangContext("root", null)
+        return parseConfig(defaultConfig) ?: LenixLangContext("root")
     }
 }

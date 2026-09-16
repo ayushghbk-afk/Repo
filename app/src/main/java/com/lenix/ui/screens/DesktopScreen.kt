@@ -56,7 +56,6 @@ import androidx.compose.ui.unit.dp
 import com.lenix.clipboard.ClipboardBridge
 import com.lenix.vm.launch.GuestRuntime
 import com.lenix.vnc.RfbClient
-import com.lenix.vnc.input.InputMapper
 import com.lenix.vnc.input.KeySym
 import com.lenix.vnc.input.MouseButtons
 import com.lenix.vnc.input.TouchMapper
@@ -96,6 +95,7 @@ fun DesktopScreen(
     var viewSize by remember { mutableStateOf(IntSize.Zero) }
     var scale by remember { mutableStateOf(1f) }
     var clipboardText by remember { mutableStateOf<String?>(null) }
+    var lastDragPoint by remember { mutableStateOf<Pair<Int, Int>?>(null) }
 
     var ctrlDown by remember { mutableStateOf(false) }
     var altDown by remember { mutableStateOf(false) }
@@ -295,7 +295,7 @@ fun DesktopScreen(
                                 when (keysym) {
                                     -1 -> {
                                         ctrlDown = !ctrlDown
-                                        rfbClient?.key(ctrlDown, KeySym.CONTROL_L)
+                                        rfbClient?.key(ctrlDown, KeySym.CTRL_L)
                                     }
                                     -2 -> {
                                         altDown = !altDown
@@ -339,10 +339,11 @@ fun DesktopScreen(
                             onLongPress = { offset ->
                                 val fb = viewToFb(offset.x, offset.y) ?: return@detectTapGestures
                                 scope.launch(Dispatchers.IO) {
-                                    val ev = TouchMapper.longPress(fb.first, fb.second)
-                                    rfbClient?.pointer(ev.buttonMask, ev.x, ev.y)
+                                    val events = TouchMapper.longPress(fb.first, fb.second)
+                                    val press = events.first()
+                                    rfbClient?.pointer(press.buttonMask, press.x, press.y)
                                     delay(50)
-                                    rfbClient?.pointer(0, ev.x, ev.y)
+                                    rfbClient?.pointer(MouseButtons.NONE, press.x, press.y)
                                 }
                             },
                             onDoubleTap = { offset ->
@@ -361,6 +362,7 @@ fun DesktopScreen(
                         detectDragGestures(
                             onDragStart = { offset ->
                                 val fb = viewToFb(offset.x, offset.y) ?: return@detectDragGestures
+                                lastDragPoint = fb
                                 scope.launch(Dispatchers.IO) {
                                     val ev = TouchMapper.dragStart(fb.first, fb.second)
                                     rfbClient?.pointer(ev.buttonMask, ev.x, ev.y)
@@ -368,12 +370,14 @@ fun DesktopScreen(
                             },
                             onDragEnd = {
                                 scope.launch(Dispatchers.IO) {
-                                    val ev = TouchMapper.dragEnd()
+                                    val last = lastDragPoint ?: (0 to 0)
+                                    val ev = TouchMapper.dragEnd(last.first, last.second)
                                     rfbClient?.pointer(ev.buttonMask, ev.x, ev.y)
                                 }
                             },
                             onDrag = { change, _ ->
                                 val fb = viewToFb(change.position.x, change.position.y) ?: return@detectDragGestures
+                                lastDragPoint = fb
                                 scope.launch(Dispatchers.IO) {
                                     val ev = TouchMapper.dragMove(fb.first, fb.second)
                                     rfbClient?.pointer(ev.buttonMask, ev.x, ev.y)
