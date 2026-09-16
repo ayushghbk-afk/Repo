@@ -462,7 +462,7 @@ fun DesktopScreen(
                 )
                 if (serverSize != null) {
                     Text(
-                        text = "${serverSize!!.width}×${serverSize!!.height} @ ${\"%.2f\".format(scale)}x",
+                        text = "${serverSize!!.width}×${serverSize!!.height} @ ${"%.2f".format(scale)}x",
                         color = Color(0xFF7A8699),
                         style = MaterialTheme.typography.labelSmall,
                     )

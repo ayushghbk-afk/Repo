@@ -75,7 +75,7 @@ class GuestRuntime(
                     append("Ship the engine payload (${NativeSetup.PROOT} + ${NativeSetup.PROOT_LOADER}) under app/src/main/jniLibs/$abi/ and rebuild.\n")
                     append("Diagnostics:\n")
                     append("- filesDir: ${filesDir.absolutePath}\n")
-                    append("- nativeLibDir: ${nativeLibDir?.absolutePath ?: \"null\"}\n")
+                    append("- nativeLibDir: ${nativeLibDir?.absolutePath ?: "null"}\n")
                     append("- abi: $abi\n")
                     append("- Check ./scripts/fetch-engine.sh $abi")
                 },
