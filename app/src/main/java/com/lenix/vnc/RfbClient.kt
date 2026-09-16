@@ -105,6 +105,9 @@ class RfbClient(
         RfbProtocol.writeKeyEvent(output, down, keysym)
     }
 
+    /** Returns a copy suitable for handing to a UI thread after [readUpdate]. */
+    fun snapshotPixels(): IntArray = pixels.copyOf()
+
     fun readUpdate() {
         val count = RfbProtocol.readFramebufferUpdateHeader(input)
         repeat(count) {

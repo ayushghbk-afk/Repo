@@ -1,5 +1,7 @@
 package com.lenix.ui.screens
 
+import android.graphics.Bitmap
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,18 +32,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.dp
 import com.lenix.vm.launch.GuestRuntime
 import com.lenix.vnc.RfbClient
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 /** Built-in RFB viewer for the Openbox session (Phase 7 / ADR-003).
 
-  * Handshake runs on a background dispatcher; the framebuffer renderer is the
-  * next polish pass. Until Xvnc answers, a status card explains why.
+  * Handshake and Raw framebuffer reads run off the UI thread; decoded opaque
+  * ARGB pixels are displayed as a Compose bitmap and input remains on the RFB
+  * socket.
   */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,6 +57,7 @@ fun DesktopScreen(
 ) {
     var status by remember { mutableStateOf("Waiting for Openbox / Xvnc …") }
     var connected by remember { mutableStateOf(false) }
+    var frame by remember { mutableStateOf<Bitmap?>(null) }
 
     LaunchedEffect(vncPort, running, instanceId) {
         connected = false
@@ -107,8 +111,21 @@ fun DesktopScreen(
             if (session == null) {
                 status = lastError
             } else {
-                // Hold the RFB session open while the screen is on top.
-                awaitCancellation()
+                // Keep requesting updates and publish opaque ARGB pixels to Compose.
+                // RFB has no server-push requirement; the request is the clock.
+                val activeSession = session ?: return@LaunchedEffect
+                while (true) {
+                    withContext(Dispatchers.IO) { activeSession.readUpdate() }
+                    val pixels = activeSession.snapshotPixels()
+                    val bitmap = Bitmap.createBitmap(
+                        pixels,
+                        activeSession.server.width,
+                        activeSession.server.height,
+                        Bitmap.Config.ARGB_8888,
+                    )
+                    frame = bitmap
+                    withContext(Dispatchers.IO) { activeSession.requestUpdate(incremental = true) }
+                }
             }
         } finally {
             session?.close()
@@ -145,6 +162,13 @@ fun DesktopScreen(
                     .background(Color(0xFF242A36), RoundedCornerShape(16.dp))
                     .padding(24.dp),
             ) {
+                frame?.let { bitmap ->
+                    Image(
+                        bitmap = bitmap.asImageBitmap(),
+                        contentDescription = "Linux desktop",
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
                 Icon(
                     Icons.Default.Computer,
                     contentDescription = null,
