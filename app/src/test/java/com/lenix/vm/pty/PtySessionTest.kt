@@ -220,7 +220,9 @@ class PtySessionTest {
         val alive = AtomicBoolean(true)
         override val pid: Long = 4242L
         override val vncPort: Int? = null
+        override val isPty: Boolean = false
         override fun isAlive(): Boolean = alive.get()
+        override fun updateSize(cols: Int, rows: Int) {}
         override fun stop(graceMs: Long) {
             alive.set(false)
         }
