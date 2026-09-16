@@ -87,6 +87,9 @@ fun LenixApp() {
             TerminalScreen(
                 snapshot = terminal,
                 onSend = homeViewModel::sendToTerminal,
+                onSendRaw = homeViewModel::sendRawToTerminal,
+                onCtrlC = homeViewModel::sendCtrlCToTerminal,
+                onCtrlD = homeViewModel::sendCtrlDToTerminal,
                 onEndOfInput = homeViewModel::sendEofToTerminal,
                 onClear = homeViewModel::clearTerminal,
                 onBack = { navController.popBackStack() },

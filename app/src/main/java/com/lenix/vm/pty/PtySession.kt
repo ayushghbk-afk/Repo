@@ -1,5 +1,6 @@
 package com.lenix.vm.pty
 
+import android.util.Base64
 import com.lenix.vm.launch.GuestSession
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,48 +23,43 @@ data class TerminalSnapshot(
     val pid: Long = 0L,
     /** One-line status under the transcript: why nothing is attached, or how it ended. */
     val notice: String? = null,
+    val isPty: Boolean = false,
 ) {
     companion object {
         /** The window's state while no guest session exists. */
         fun disconnected(notice: String): TerminalSnapshot =
-            TerminalSnapshot(text = "", revision = 0L, alive = false, pid = 0L, notice = notice)
+            TerminalSnapshot(text = "", revision = 0L, alive = false, pid = 0L, notice = notice, isPty = false)
     }
 }
 
 /**
  * Attaches the terminal window to a live [GuestSession].
  *
- * The guest's stdio is a pipe, not a PTY (`libpvmnative`'s `openpty` is optional and not
- * shipped — ADR-019), which has three consequences this class owns:
+ * Improved from Stryker's proven TerminalSession:
+ * - Supports both PTY and pipe modes (auto-detected via GuestSession.isPty)
+ * - PTY mode: shell echoes, supports signals (Ctrl-C → ETX), window resize via TIOCSWINSZ
+ * - Pipe mode: local echo, END SHELL closes stdin (old behavior)
+ * - ByteQueue-like handling with incremental UTF8 decoding
+ * - Clipboard via OSC 52 sequence detection (Stryker's TerminalEmulator does this)
+ * - Proper cleanup via killpg for PTY sessions
  *
- * 1. **The shell never echoes.** bash reads lines from a pipe without readline, so what
- *    the user types must be echoed locally ([TerminalBuffer.echoLine]) or the window
- *    shows output with no command line above it.
- * 2. **Exactly one reader may exist.** The session is owned by `GuestRuntime` for as
- *    long as the guest runs — not by the Compose screen — so navigating away neither
- *    drops output nor leaves the 64 KiB pipe full, which would block the guest.
- * 3. **Control bytes are not signals.** There is no line discipline to turn `^C` into
- *    SIGINT; the only in-band end-of-input is closing stdin ([sendEof]).
- *
- * Output is decoded incrementally, so a multi-byte UTF-8 sequence split across two
- * reads renders correctly instead of as two replacement characters.
- *
- * @param echoInput set false once a real PTY exists and the shell echoes for us
- * @param prompt prefix for the local echo, so the transcript reads like a terminal
- *   (`$ ls` above its output) instead of bare output with no command line
- * @param threadFactory injectable for tests; the reader is a daemon thread that owns
- *   the blocking `read()` and no coroutine scope is required
+ * The guest's stdio is either a PTY (preferred, when libpvmnative available) or a pipe.
+ * Exactly one reader may exist — owned by GuestRuntime for as long as guest runs.
  */
 class PtySession(
     private val guest: GuestSession,
     private val buffer: TerminalBuffer = TerminalBuffer(),
     private val charset: Charset = Charsets.UTF_8,
-    private val echoInput: Boolean = true,
     private val prompt: String = DEFAULT_PROMPT,
     private val threadFactory: (Runnable) -> Thread = { runnable ->
         Thread(runnable, READER_THREAD).apply { isDaemon = true }
     },
+    private val onClipboardText: ((String) -> Unit)? = null,
 ) {
+    // Auto-detect PTY mode from guest session (Stryker pattern: sockMode vs PTY)
+    private val isPtyMode = guest.isPty
+    private val echoInput = !isPtyMode // PTY echoes for us, pipe doesn't
+
     private val decoder = charset.newDecoder()
         .onMalformedInput(CodingErrorAction.REPLACE)
         .onUnmappableCharacter(CodingErrorAction.REPLACE)
@@ -91,6 +87,7 @@ class PtySession(
             alive = !exited,
             pid = guest.pid,
             notice = notice,
+            isPty = isPtyMode,
         ),
     )
     val snapshot: StateFlow<TerminalSnapshot> = mutableSnapshot.asStateFlow()
@@ -112,6 +109,23 @@ class PtySession(
         write((line + "\n").toByteArray(charset)) { buffer.echoLine(prompt + line) }
 
     /**
+     * Sends raw text without newline (for special keys, etc).
+     */
+    fun sendRaw(text: String): Boolean =
+        write(text.toByteArray(charset)) {}
+
+    /**
+     * Sends Ctrl-C (ETX) — works in PTY mode via line discipline → SIGINT.
+     * In pipe mode, it's just a byte that bash won't interpret as signal.
+     */
+    fun sendCtrlC(): Boolean = write(byteArrayOf(0x03)) {}
+
+    /**
+     * Sends Ctrl-D (EOT) — EOF in many shells.
+     */
+    fun sendCtrlD(): Boolean = write(byteArrayOf(0x04)) {}
+
+    /**
      * Closes the guest's stdin, the only end-of-input a pipe-backed shell understands:
      * bash sees EOF and exits. Returns false when stdin was already closed.
      */
@@ -126,6 +140,12 @@ class PtySession(
             markExited(e.message?.let { "Shell closed: $it" } ?: EXITED_NOTICE)
             false
         }
+    }
+
+    /** Updates terminal size (like Stryker's updateSize). */
+    fun updateSize(cols: Int, rows: Int) {
+        if (cols < 2 || rows < 2) return
+        guest.updateSize(cols, rows)
     }
 
     /** Clears the scrollback; the guest is untouched. */
@@ -170,19 +190,43 @@ class PtySession(
                 if (read == 0) continue
                 val text = decode(bytes, read, chars, endOfInput = false)
                 if (text.isNotEmpty()) {
+                    // Check for OSC 52 clipboard sequence (Stryker's TerminalEmulator handles this)
+                    handleOsc52(text)
                     buffer.write(text)
                     publish()
                 }
             }
             val tail = decode(bytes, 0, chars, endOfInput = true)
-            if (tail.isNotEmpty()) buffer.write(tail)
+            if (tail.isNotEmpty()) {
+                handleOsc52(tail)
+                buffer.write(tail)
+            }
         } catch (_: IOException) {
             // The guest died or its stdout was closed under us; report it below.
         } catch (_: InterruptedException) {
-            // close() interrupted us on purpose; put the flag back and stop quietly.
             Thread.currentThread().interrupt()
         } finally {
             if (!closed) markExited(EXITED_NOTICE)
+        }
+    }
+
+    /**
+     * Handles OSC 52 clipboard sequences: ESC ] 52 ; c ; base64 BEL
+     * Stryker's TerminalEmulator does this to sync Linux clipboard → Android.
+     */
+    private fun handleOsc52(text: String) {
+        // Simple detection: look for OSC 52 pattern
+        // Real implementation would need proper state machine, but we do quick check
+        if (!text.contains("\u001B]52;")) return
+        try {
+            val regex = Regex("""\u001B\]52;[cps]*;([A-Za-z0-9+/=]+)(?:\u0007|\u001B\\)""")
+            val match = regex.find(text)
+            if (match != null) {
+                val b64 = match.groupValues[1]
+                val decoded = String(Base64.decode(b64, Base64.DEFAULT), Charsets.UTF_8)
+                onClipboardText?.invoke(decoded)
+            }
+        } catch (_: Exception) {
         }
     }
 
@@ -199,7 +243,6 @@ class PtySession(
         chars.clear()
         decoder.decode(input, chars, endOfInput)
         if (endOfInput) decoder.flush(chars)
-        // Whatever the decoder left unconsumed is a partial sequence: hold it back.
         val left = input.remaining()
         if (left in 1..pendingBytes.size) {
             input.get(pendingBytes, 0, left)
@@ -223,6 +266,7 @@ class PtySession(
             alive = !exited && !closed,
             pid = guest.pid,
             notice = notice,
+            isPty = isPtyMode,
         )
     }
 

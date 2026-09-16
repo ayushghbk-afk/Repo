@@ -430,6 +430,25 @@ class HomeViewModel(
         viewModelScope.launch(Dispatchers.IO) { terminal.send(line) }
     }
 
+    fun sendRawToTerminal(text: String) {
+        val terminal = guestRuntime.terminal(mutableHomeState.value.selectedInstance.id)
+        if (terminal == null) {
+            detachTerminal(TERMINAL_IDLE)
+            return
+        }
+        viewModelScope.launch(Dispatchers.IO) { terminal.sendRaw(text) }
+    }
+
+    fun sendCtrlCToTerminal() {
+        val terminal = guestRuntime.terminal(mutableHomeState.value.selectedInstance.id) ?: return
+        viewModelScope.launch(Dispatchers.IO) { terminal.sendCtrlC() }
+    }
+
+    fun sendCtrlDToTerminal() {
+        val terminal = guestRuntime.terminal(mutableHomeState.value.selectedInstance.id) ?: return
+        viewModelScope.launch(Dispatchers.IO) { terminal.sendCtrlD() }
+    }
+
     /** Closes the guest's stdin — the only end-of-input a pipe-backed shell honors. */
     fun sendEofToTerminal() {
         val terminal = guestRuntime.terminal(mutableHomeState.value.selectedInstance.id) ?: return
@@ -439,6 +458,10 @@ class HomeViewModel(
     /** Clears the terminal window's scrollback; the guest session is untouched. */
     fun clearTerminal() {
         guestRuntime.terminal(mutableHomeState.value.selectedInstance.id)?.clear()
+    }
+
+    fun updateTerminalSize(cols: Int, rows: Int) {
+        guestRuntime.terminal(mutableHomeState.value.selectedInstance.id)?.updateSize(cols, rows)
     }
 
     /** Mirrors the running session's terminal into [terminalState] until it is replaced. */
