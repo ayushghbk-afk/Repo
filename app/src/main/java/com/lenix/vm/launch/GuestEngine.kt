@@ -199,7 +199,7 @@ class ProotGuestEngine : GuestEngine {
     }
 
     private fun buildEnv(
-        status: com.lenix.nativebridge.EngineStatus,
+        status: com.lenix.nativebridge.EngineInstaller.EngineStatus,
         tmpDir: File,
         libDir: File?,
     ): Map<String, String> {

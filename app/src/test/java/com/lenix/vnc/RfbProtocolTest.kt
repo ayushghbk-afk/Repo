@@ -152,7 +152,10 @@ class RfbProtocolTest {
         assertEquals(RfbProtocol.CLIENT_SET_ENCODINGS.toByte(), written[34])
         assertEquals(
             RfbProtocol.CLIENT_FRAMEBUFFER_UPDATE_REQUEST.toByte(),
-            written[34 + 8],
+            // SetEncodings is 4 header bytes + 4 per encoding (RFC 6143 §7.5.2):
+            // with Raw + DesktopSize that is 12 bytes, so the update request
+            // starts at 34 + 12.
+            written[34 + 12],
         )
     }
 }

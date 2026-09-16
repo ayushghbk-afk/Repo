@@ -235,6 +235,9 @@ class GuestRuntimeTest {
 
     /** A guest whose stdout the test writes to, like a shell printing while we look away. */
     private class PipedSession : GuestSession {
+        override val isPty: Boolean = false
+        override fun updateSize(cols: Int, rows: Int) {}
+
         private val alive = AtomicBoolean(true)
         private val writer = PipedOutputStream()
         override val pid: Long = 31337
@@ -265,6 +268,9 @@ class GuestRuntimeTest {
     }
 
     private class FakeSession(override val vncPort: Int?) : GuestSession {
+        override val isPty: Boolean = false
+        override fun updateSize(cols: Int, rows: Int) {}
+
         private val alive = AtomicBoolean(true)
         override val pid: Long = 4242
         override val stdin: OutputStream = ByteArrayOutputStream()
@@ -281,6 +287,9 @@ class GuestRuntimeTest {
     }
 
     private class ShellReadySession : GuestSession {
+        override val isPty: Boolean = false
+        override fun updateSize(cols: Int, rows: Int) {}
+
         private val alive = AtomicBoolean(true)
         private val writer = PipedOutputStream()
         override val pid: Long = 31337
@@ -318,6 +327,9 @@ class GuestRuntimeTest {
     }
 
     private class NoReadySignalSession : GuestSession {
+        override val isPty: Boolean = false
+        override fun updateSize(cols: Int, rows: Int) {}
+
         private val alive = AtomicBoolean(true)
         private val writer = PipedOutputStream()
         override val pid: Long = 31337
@@ -353,6 +365,9 @@ class GuestRuntimeTest {
     }
 
     private class DiesBeforeReadySession : GuestSession {
+        override val isPty: Boolean = false
+        override fun updateSize(cols: Int, rows: Int) {}
+
         private val alive = AtomicBoolean(true)
         override val pid: Long = 31337
         override val stdin: OutputStream = ByteArrayOutputStream()
