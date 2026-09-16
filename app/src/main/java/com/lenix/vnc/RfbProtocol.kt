@@ -11,6 +11,14 @@ import java.nio.charset.StandardCharsets
 /**
  * RFB 3.8 wire helpers (ADR-003 / ADR-004). Handshake and Raw encoding are
  * implemented in pure Kotlin so they are JVM-testable without a live Xvnc.
+ *
+ * Improvements from Stryker reference:
+ * - Robust security negotiation with clear diagnostics (None vs VNC auth)
+ * - Clipboard support via ClientCutText/ServerCutText (like Stryker's Clipboard)
+ * - Proper handling of server message types (Bell, ServerCutText, SetColourMapEntries)
+ * - PixelFormat pinning to BGRX_8888 for hardware-accelerated decoding
+ * - Raw encoding only, but with graceful handling of unsupported encodings
+ * - VNC authentication error with actionable message
  */
 object RfbProtocol {
     const val VERSION = "RFB 003.008\n"
@@ -18,12 +26,22 @@ object RfbProtocol {
     const val SECURITY_NONE = 1
     const val SECURITY_VNC = 2
     const val ENCODING_RAW = 0
+    const val ENCODING_COPYRECT = 1
+    const val ENCODING_RRE = 2
+    const val ENCODING_HEXTILE = 5
+    const val ENCODING_TRLE = 15
+    const val ENCODING_ZRLE = 16
+    const val ENCODING_DESKTOP_SIZE = -223 // pseudo-encoding for resize
     const val MSG_FRAMEBUFFER_UPDATE = 0
+    const val MSG_SET_COLOUR_MAP_ENTRIES = 1
+    const val MSG_BELL = 2
+    const val MSG_SERVER_CUT_TEXT = 3
     const val CLIENT_SET_PIXEL_FORMAT = 0
     const val CLIENT_SET_ENCODINGS = 2
     const val CLIENT_FRAMEBUFFER_UPDATE_REQUEST = 3
     const val CLIENT_KEY_EVENT = 4
     const val CLIENT_POINTER_EVENT = 5
+    const val CLIENT_CUT_TEXT = 6
 
     fun writeVersion(out: OutputStream) {
         out.write(VERSION.toByteArray(StandardCharsets.US_ASCII))
@@ -48,10 +66,16 @@ object RfbProtocol {
         return List(count) { data.readUnsignedByte() }
     }
 
+    /**
+     * Chooses security type, preferring None. If only VNC auth is offered,
+     * returns VNC but caller must handle challenge — or fail with clear message.
+     * Stryker's x11vnc uses VNC auth with password file; Lenix uses None for loopback,
+     * but we support both for compatibility.
+     */
     fun chooseSecurity(types: List<Int>): Int {
         if (SECURITY_NONE in types) return SECURITY_NONE
         if (SECURITY_VNC in types) return SECURITY_VNC
-        error("No supported RFB security type in $types")
+        error("No supported RFB security type in $types. Server offers: $types. Lenix supports None (1) and VNC (2).")
     }
 
     fun writeSecurityType(out: OutputStream, type: Int) {
@@ -60,8 +84,23 @@ object RfbProtocol {
     }
 
     fun readSecurityResult(input: InputStream): Boolean {
-        val result = DataInputStream(input).readInt()
-        return result == 0
+        val data = DataInputStream(input)
+        val result = data.readInt()
+        if (result != 0) {
+            // SecurityResult failed — try to read reason if present
+            try {
+                val reasonLen = data.readInt()
+                if (reasonLen > 0 && reasonLen < 4096) {
+                    val reason = ByteArray(reasonLen)
+                    data.readFully(reason)
+                    error("RFB security handshake failed: ${String(reason, StandardCharsets.UTF_8)} (code $result)")
+                }
+            } catch (_: Exception) {
+                // No reason string, just fail
+            }
+            return false
+        }
+        return true
     }
 
     fun writeClientInit(out: OutputStream, shared: Boolean = true) {
@@ -224,15 +263,46 @@ object RfbProtocol {
         out.flush()
     }
 
+    fun writeClientCutText(out: OutputStream, text: String) {
+        val bytes = text.toByteArray(StandardCharsets.UTF_8)
+        // Clip large text (Stryker's clipboard handles large text where applicable)
+        val clipped = if (bytes.size > 1_000_000) bytes.copyOf(1_000_000) else bytes
+        val buf = ByteBuffer.allocate(8 + clipped.size).order(ByteOrder.BIG_ENDIAN)
+        buf.put(CLIENT_CUT_TEXT.toByte())
+        buf.put(ByteArray(3)) // padding
+        buf.putInt(clipped.size)
+        buf.put(clipped)
+        out.write(buf.array())
+        out.flush()
+    }
+
     data class Rect(val x: Int, val y: Int, val width: Int, val height: Int, val encoding: Int)
+
+    /**
+     * Reads a server message header and returns type.
+     * Handles FramebufferUpdate, SetColourMapEntries, Bell, ServerCutText.
+     */
+    fun readServerMessageType(input: InputStream): Int {
+        return DataInputStream(input).readUnsignedByte()
+    }
 
     fun readFramebufferUpdateHeader(input: InputStream): Int {
         val data = DataInputStream(input)
+        // Type already consumed? For backward compat, check if we need to read type.
+        // This method expects type byte has been read and is 0, but we also support reading it here.
+        // To keep existing tests passing, we read type if not already handled.
+        // Actually original impl read type + padding + count. We'll keep that but also provide alternative.
         val type = data.readUnsignedByte()
         if (type != MSG_FRAMEBUFFER_UPDATE) {
-            error("Unexpected RFB message $type")
+            error("Unexpected RFB message $type, expected FramebufferUpdate (0)")
         }
-        data.readUnsignedByte()
+        data.readUnsignedByte() // padding
+        return data.readUnsignedShort()
+    }
+
+    fun readFramebufferUpdateHeaderAfterType(input: InputStream): Int {
+        val data = DataInputStream(input)
+        data.readUnsignedByte() // padding
         return data.readUnsignedShort()
     }
 
@@ -245,6 +315,30 @@ object RfbProtocol {
             height = data.readUnsignedShort(),
             encoding = data.readInt(),
         )
+    }
+
+    fun readServerCutText(input: InputStream): String {
+        val data = DataInputStream(input)
+        data.skipBytes(3) // padding
+        val length = data.readInt()
+        if (length <= 0) return ""
+        val safeLen = length.coerceAtMost(10_000_000)
+        val bytes = ByteArray(safeLen)
+        data.readFully(bytes)
+        // Skip remaining if length was larger than safe
+        if (length > safeLen) {
+            data.skipBytes(length - safeLen)
+        }
+        return String(bytes, StandardCharsets.UTF_8)
+    }
+
+    fun readSetColourMapEntries(input: InputStream) {
+        val data = DataInputStream(input)
+        data.skipBytes(1) // padding
+        val first = data.readUnsignedShort()
+        val count = data.readUnsignedShort()
+        // Each entry is 3x U16 (RGB)
+        data.skipBytes(count * 6)
     }
 
     /**
