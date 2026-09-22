@@ -12,6 +12,11 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
+      - name: Check out the temporary branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+          fetch-depth: 1
       - name: Call MCP endpoint
         shell: bash
         env:
@@ -53,24 +58,17 @@ jobs:
       - name: Publish probe response to the temporary branch
         shell: bash
         env:
-          GH_TOKEN: ${{ github.token }}
-          REPOSITORY: ${{ github.repository }}
           BRANCH: ${{ github.head_ref || github.ref_name }}
           RUN_ID: ${{ github.run_id }}
         run: |
           set -euo pipefail
-          cat probe/initialize.response probe/tools-list.response > probe/combined.response
-          encoded="$(base64 -w0 probe/combined.response)"
-          jq -n --arg message "chore: record temporary MCP probe response ($RUN_ID)" \\
-            --arg content "$encoded" --arg branch "$BRANCH" \\
-            '{message: $message, content: $content, branch: $branch}' > probe/put.json
-          curl --fail-with-body --retry 3 --retry-all-errors -sS \\
-            -X PUT "https://api.github.com/repos/$REPOSITORY/contents/.mcp-probe-$RUN_ID.txt" \\
-            -H "Authorization: Bearer $GH_TOKEN" \\
-            -H 'Accept: application/vnd.github+json' \\
-            -H 'X-GitHub-Api-Version: 2022-11-28' \\
-            -H 'Content-Type: application/json' \\
-            --data-binary @probe/put.json >/dev/null
+          cp probe/initialize.response ".mcp-probe-$RUN_ID.initialize.txt"
+          cat probe/tools-list.response > ".mcp-probe-$RUN_ID.tools-list.txt"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ".mcp-probe-$RUN_ID.initialize.txt" ".mcp-probe-$RUN_ID.tools-list.txt"
+          git commit -m "chore: record temporary MCP probe response ($RUN_ID)"
+          git push origin "HEAD:$BRANCH"
       - name: Print MCP responses for retrieval
         shell: bash
         run: |
