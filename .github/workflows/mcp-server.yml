@@ -1,0 +1,48 @@
+name: Test Android Reverse MCP
+
+on:
+  push:
+    branches:
+      - main
+      - arena/**
+    paths:
+      - "mcp-server/**"
+      - "scripts/run-mcp-server.sh"
+      - "scripts/test-mcp-server.sh"
+      - ".github/workflows/mcp-server.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "mcp-server/**"
+      - "scripts/run-mcp-server.sh"
+      - "scripts/test-mcp-server.sh"
+      - ".github/workflows/mcp-server.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Test MCP server
+        run: ./mcp-server/scripts/test.sh
+      - name: Check tracked files for obvious secrets and tunnel hosts
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -RIn --exclude-dir=.git --exclude='*.md' \
+            -E 'BEGIN (RSA|EC|OPENSSH|PRIVATE) KEY|ghp_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}' \
+            mcp-server scripts .github; then
+            echo 'Potential secret or temporary tunnel hostname found'
+            exit 1
+          fi

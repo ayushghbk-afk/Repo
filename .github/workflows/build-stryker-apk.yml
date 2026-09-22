@@ -79,28 +79,6 @@ jobs:
           set -e
           exit $status
 
-      - name: Commit APK to ci-artifacts branch path
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          exec > >(tee ci-commit.log) 2>&1
-          ROOT="$(git rev-parse --show-toplevel)"
-          APK=$(ls app/build/outputs/apk/debug/*.apk)
-          mkdir -p "$ROOT/ci-artifacts"
-          cp "$APK" "$ROOT/ci-artifacts/stryker-app-debug.apk"
-          git config user.name "stryker-ci-bot"
-          git config user.email "actions@users.noreply.github.com"
-          git -C "$ROOT" add -f ci-artifacts/stryker-app-debug.apk
-          if git -C "$ROOT" diff --cached --quiet; then
-            echo "APK unchanged, nothing to commit"
-          else
-            git -C "$ROOT" commit -m "CI: update Stryker debug APK artifact [skip ci]"
-            echo "--- dirty files before pull (expected: CRLF renormalization noise) ---"
-            git -C "$ROOT" status --porcelain | head -20 || true
-            git -C "$ROOT" pull --rebase --autostash origin "$GITHUB_REF_NAME"
-            git -C "$ROOT" push --verbose origin "HEAD:$GITHUB_REF_NAME"
-          fi
-
       - name: Report failure to diagnostics issue
         if: failure()
         env:

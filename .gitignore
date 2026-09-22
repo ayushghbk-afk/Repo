@@ -63,5 +63,15 @@ app/src/main/jniLibs/
 dist/rootfs/layers/
 dist/rootfs/manifests/**.sig
 
+# Android Reverse Engineering MCP runtime state and extracted analysis data
+/mcp-server/.cache/
+/mcp-server/workspace/
+/mcp-server/*.egg-info/
+/mcp-server/.venv/
+/mcp-server/__pycache__/
+/mcp-server/**/__pycache__/
+/mcp-server/.pytest_cache/
+*.py[cod]
+
 # Uploaded Stryker source archive (vendored under /stryker)
 /strykerapp-main.zip
