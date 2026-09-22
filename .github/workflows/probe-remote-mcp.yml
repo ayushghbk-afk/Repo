@@ -56,11 +56,11 @@ jobs:
               -H 'Content-Type: application/json' \
               --data-raw "$list"
           fi
-          curl --fail-with-body --retry 3 --retry-all-errors --connect-timeout 20 --max-time 90 \\
-            -sS -D probe/workspace.headers -o probe/workspace.response \\
-            "$MCP_URL" \\
-            -H 'Accept: application/json, text/event-stream' \\
-            -H 'Content-Type: application/json' \\
+          curl --fail-with-body --retry 3 --retry-all-errors --connect-timeout 20 --max-time 90 \
+            -sS -D probe/workspace.headers -o probe/workspace.response \
+            "$MCP_URL" \
+            -H 'Accept: application/json, text/event-stream' \
+            -H 'Content-Type: application/json' \
             --data-raw "$workspace"
       - name: Publish probe response to the temporary branch
         shell: bash
