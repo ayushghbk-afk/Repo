@@ -1,0 +1,22 @@
+{
+  "tool": "search_bytecode",
+  "arguments": {
+    "query": "apkmody",
+    "maxResults": 30
+  },
+  "status": 200,
+  "error": null,
+  "rpc": {
+    "jsonrpc": "2.0",
+    "id": 9,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Zero signatures matched."
+        }
+      ]
+    }
+  },
+  "text": "Zero signatures matched."
+}

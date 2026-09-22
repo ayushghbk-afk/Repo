@@ -1,0 +1,24 @@
+{
+  "tool": "query_arsc_resources",
+  "arguments": {
+    "apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk",
+    "resourceType": "string",
+    "query": "mod",
+    "limit": 40
+  },
+  "status": 200,
+  "error": null,
+  "rpc": {
+    "jsonrpc": "2.0",
+    "id": 10,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "ARSC Query Results (Limit: 40):\n\n[string] abc_action_mode_done = \"Done\"\n[string] material_timepicker_clock_mode_description = \"Switch to clock mode for the time input.\"\n[string] material_timepicker_text_input_mode_description = \"Switch to text input mode for the time input.\"\n[string] mtrl_picker_toggle_to_calendar_input_mode = \"Switch to calendar input mode\"\n[string] mtrl_picker_toggle_to_text_input_mode = \"Switch to text input mode\"\n"
+        }
+      ]
+    }
+  },
+  "text": "ARSC Query Results (Limit: 40):\n\n[string] abc_action_mode_done = \"Done\"\n[string] material_timepicker_clock_mode_description = \"Switch to clock mode for the time input.\"\n[string] material_timepicker_text_input_mode_description = \"Switch to text input mode for the time input.\"\n[string] mtrl_picker_toggle_to_calendar_input_mode = \"Switch to calendar input mode\"\n[string] mtrl_picker_toggle_to_text_input_mode = \"Switch to text input mode\"\n"
+}

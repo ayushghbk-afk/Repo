@@ -1,0 +1,22 @@
+{
+  "tool": "list_loaded_classes",
+  "arguments": {
+    "filterQuery": "apkmody",
+    "limit": 50
+  },
+  "status": 200,
+  "error": null,
+  "rpc": {
+    "jsonrpc": "2.0",
+    "id": 7,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Query returned zero matches."
+        }
+      ]
+    }
+  },
+  "text": "Query returned zero matches."
+}

@@ -1,17 +1,29 @@
-[09:46:00] initialize OK via /mcp (2025-06-18)
-[09:46:00] saved 02-initialize-result.json (234 bytes)
-[09:46:00] call 1/4 read_axml_file {"apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk", "filePath": "AndroidManifest.xml", "startLine": 1, "endLine": 120}
-[09:46:01]    -> // [PAGINATED] Returning structural matrix lines 1 to 120 out of 954 total lines Binary AXML schema detected. Compression mapping bypassed...  <?xml version="1.0" encoding="utf-8"?> <manifest xmlns:android="http://schemas.android.com/apk/res/android"     android:isSplitRequired="false"     package="
-[09:46:01] saved 10-call-01-read_axml_file.json (9668 bytes)
-[09:46:01] call 2/4 get_apk_signature {"apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk"}
-[09:46:02]    -> APK Signature Certificates:  --- Certificate [1] --- Subject: CN=Anh Pham,OU=APKMODY,O=APKMODY,L=Beasley,ST=TX,C=Texas Issuer: CN=Anh Pham,OU=APKMODY,O=APKMODY,L=Beasley,ST=TX,C=Texas Valid Until: Tue Dec 18 09:30:59 GMT+05:30 2046 SHA-1: 1C:C6:3A:91:D4:47:91:8E:EA:7E:38:04:2C:54:E6:06:8D:CA:EA:E3 S
-[09:46:02] saved 10-call-02-get_apk_signature.json (1176 bytes)
-[09:46:02] call 3/4 list_apk_files {"apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk", "maxResults": 120}
-[09:46:02]    -> Virtual directory mapped. Isolated 120 nodes: [FILE] DebugProbesKt.bin [FILE] META-INF/androidx.activity_activity-compose.version [FILE] META-INF/androidx.activity_activity-ktx.version [FILE] META-INF/androidx.activity_activity.version [FILE] META-INF/androidx.annotation_annotation-experimental.vers
-[09:46:02] saved 10-call-03-list_apk_files.json (13478 bytes)
-[09:46:02] call 4/4 query_arsc_resources {"apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk", "resourceType": "string", "query": "app_name", "limit": 20}
-[09:46:02]    -> ARSC Query Results (Limit: 20):  [string] app_name = "Extreme Car Driving Simulator" 
-[09:46:02] saved 10-call-04-query_arsc_resources.json (603 bytes)
-[09:46:02] saved 11-calls-combined.json (25117 bytes)
-[09:46:02] saved 99-log.txt (2064 bytes)
-[09:46:02] done
+[09:53:08] initialize OK via /mcp (2025-06-18)
+[09:53:08] saved 02-initialize-result.json (234 bytes)
+[09:53:08] call 1/8 read_axml_file {"apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk", "filePath": "AndroidManifest.xml", "startLine": 121, "endLine": 520}
+[09:53:09]    -> // [PAGINATED] Returning structural matrix lines 121 to 520 out of 954 total lines         </intent>         <intent>             <action                 android:name="android.intent.action.MAIN" />         </intent>         <intent>             <action                 android:name="android.intent.a
+[09:53:09] saved 10-call-01-read_axml_file.json (40966 bytes)
+[09:53:09] call 2/8 read_axml_file {"apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk", "filePath": "AndroidManifest.xml", "startLine": 521, "endLine": 954}
+[09:53:09]    -> // [PAGINATED] Returning structural matrix lines 521 to 954 out of 954 total lines             android:configChanges="0x5b0" />         <service             android:name="androidx.credentials.playservices.CredentialProviderMetadataHolder"             android:enabled="true"             android:export
+[09:53:09] saved 10-call-02-read_axml_file.json (41702 bytes)
+[09:53:09] call 3/8 list_apk_files {"apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk", "pathFilter": "lib", "maxResults": 150}
+[09:53:10]    -> Virtual directory mapped. Isolated 54 nodes: [FILE] lib/arm64-v8a/libFirebaseCppAnalytics.so [FILE] lib/arm64-v8a/libFirebaseCppApp-12_10_1.so [FILE] lib/arm64-v8a/libFirebaseCppAuth.so [FILE] lib/arm64-v8a/libFirebaseCppCrashlytics.so [FILE] lib/arm64-v8a/libFirebaseCppRemoteConfig.so [FILE] lib/ar
+[09:53:10] saved 10-call-03-list_apk_files.json (5217 bytes)
+[09:53:10] call 4/8 list_apk_files {"apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk", "pathFilter": "assets", "maxResults": 150}
+[09:53:10]    -> Virtual directory mapped. Isolated 54 nodes: [FILE] assets/Bundles/car_003 [FILE] assets/Bundles/car_004 [FILE] assets/Bundles/car_005 [FILE] assets/Bundles/car_007 [FILE] assets/Bundles/car_023 [FILE] assets/Bundles/car_030 [FILE] assets/Bundles/car_032 [FILE] assets/Bundles/car_041 [FILE] assets/B
+[09:53:10] saved 10-call-04-list_apk_files.json (4574 bytes)
+[09:53:10] call 5/8 list_loaded_classes {"filterQuery": "apkmody", "limit": 50}
+[09:53:11]    -> Query returned zero matches.
+[09:53:11] saved 10-call-05-list_loaded_classes.json (374 bytes)
+[09:53:11] call 6/8 list_loaded_classes {"filterQuery": "com.aim.racing", "limit": 120}
+[09:53:11]    -> Identified 21 class structures: Lcom/aim/racing/BuildConfig; Lcom/aim/racing/R$anim; Lcom/aim/racing/R$animator; Lcom/aim/racing/R$attr; Lcom/aim/racing/R$bool; Lcom/aim/racing/R$color; Lcom/aim/racing/R$dimen; Lcom/aim/racing/R$drawable; Lcom/aim/racing/R$id; Lcom/aim/racing/R$integer; Lcom/aim/rac
+[09:53:11] saved 10-call-06-list_loaded_classes.json (1502 bytes)
+[09:53:11] call 7/8 search_bytecode {"query": "apkmody", "maxResults": 30}
+[09:53:12]    -> Zero signatures matched.
+[09:53:12] saved 10-call-07-search_bytecode.json (361 bytes)
+[09:53:12] call 8/8 query_arsc_resources {"apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk", "resourceType": "string", "query": "mod", "limit": 40}
+[09:53:13]    -> ARSC Query Results (Limit: 40):  [string] abc_action_mode_done = "Done" [string] material_timepicker_clock_mode_description = "Switch to clock mode for the time input." [string] material_timepicker_text_input_mode_description = "Switch to text input mode for the time input." [string] mtrl_picker_tog
+[09:53:13] saved 10-call-08-query_arsc_resources.json (1329 bytes)
+[09:53:13] saved 11-calls-combined.json (96411 bytes)
+[09:53:13] saved 99-log.txt (3736 bytes)
+[09:53:13] done
