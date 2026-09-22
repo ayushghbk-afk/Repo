@@ -1,67 +1,37 @@
 {
   "calls": [
     {
-      "tool": "read_axml_file",
+      "tool": "load_binary",
       "arguments": {
         "apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk",
-        "filePath": "AndroidManifest.xml",
-        "startLine": 121,
-        "endLine": 520
+        "entryPath": "lib/arm64-v8a/libil2cpp.so"
       },
+      "timeout": 420
+    },
+    {
+      "tool": "get_binary_metadata",
+      "arguments": {},
       "timeout": 180
     },
     {
-      "tool": "read_axml_file",
-      "arguments": {
-        "apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk",
-        "filePath": "AndroidManifest.xml",
-        "startLine": 521,
-        "endLine": 954
-      },
-      "timeout": 180
-    },
-    {
-      "tool": "list_apk_files",
-      "arguments": {
-        "apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk",
-        "pathFilter": "lib",
-        "maxResults": 150
-      },
+      "tool": "binary_search",
+      "arguments": { "query": "APKMODY", "mode": "string", "limit": 20 },
       "timeout": 240
     },
     {
-      "tool": "list_apk_files",
-      "arguments": {
-        "apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk",
-        "pathFilter": "assets",
-        "maxResults": 150
-      },
+      "tool": "binary_search",
+      "arguments": { "query": "modmenu", "mode": "string", "limit": 20 },
       "timeout": 240
     },
     {
-      "tool": "list_loaded_classes",
-      "arguments": { "filterQuery": "apkmody", "limit": 50 },
-      "timeout": 300
+      "tool": "binary_search",
+      "arguments": { "query": "ImGui", "mode": "string", "limit": 20 },
+      "timeout": 240
     },
     {
-      "tool": "list_loaded_classes",
-      "arguments": { "filterQuery": "com.aim.racing", "limit": 120 },
-      "timeout": 300
-    },
-    {
-      "tool": "search_bytecode",
-      "arguments": { "query": "apkmody", "maxResults": 30 },
-      "timeout": 300
-    },
-    {
-      "tool": "query_arsc_resources",
-      "arguments": {
-        "apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk",
-        "resourceType": "string",
-        "query": "mod",
-        "limit": 40
-      },
-      "timeout": 300
+      "tool": "list_binary_functions",
+      "arguments": { "query": "mod", "limit": 30 },
+      "timeout": 240
     }
   ]
 }
