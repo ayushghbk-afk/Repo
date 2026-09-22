@@ -26,6 +26,7 @@ jobs:
           mkdir -p probe
           init='{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"arena-probe","version":"1.0.0"}}}'
           list='{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'
+          workspace='{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"list_workspace_files","arguments":{}}}'
           headers=probe/initialize.headers
           curl --fail-with-body --retry 3 --retry-all-errors --connect-timeout 20 --max-time 90 \
             -sS -D "$headers" -o probe/initialize.response \
@@ -55,6 +56,12 @@ jobs:
               -H 'Content-Type: application/json' \
               --data-raw "$list"
           fi
+          curl --fail-with-body --retry 3 --retry-all-errors --connect-timeout 20 --max-time 90 \\
+            -sS -D probe/workspace.headers -o probe/workspace.response \\
+            "$MCP_URL" \\
+            -H 'Accept: application/json, text/event-stream' \\
+            -H 'Content-Type: application/json' \\
+            --data-raw "$workspace"
       - name: Publish probe response to the temporary branch
         shell: bash
         env:
@@ -64,9 +71,10 @@ jobs:
           set -euo pipefail
           cp probe/initialize.response ".mcp-probe-$RUN_ID.initialize.txt"
           cat probe/tools-list.response > ".mcp-probe-$RUN_ID.tools-list.txt"
+          cat probe/workspace.response > ".mcp-probe-$RUN_ID.workspace.txt"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add ".mcp-probe-$RUN_ID.initialize.txt" ".mcp-probe-$RUN_ID.tools-list.txt"
+          git add ".mcp-probe-$RUN_ID.initialize.txt" ".mcp-probe-$RUN_ID.tools-list.txt" ".mcp-probe-$RUN_ID.workspace.txt"
           git commit -m "chore: record temporary MCP probe response ($RUN_ID)"
           git push origin "HEAD:$BRANCH"
       - name: Print MCP responses for retrieval
@@ -77,6 +85,9 @@ jobs:
           echo
           echo '--- tools/list response ---'
           cat probe/tools-list.response
+          echo
+          echo '--- list_workspace_files response ---'
+          cat probe/workspace.response
       - name: Upload MCP responses
         uses: actions/upload-artifact@v4
         with:
