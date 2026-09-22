@@ -1,0 +1,56 @@
+name: Probe remote MCP
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call MCP endpoint
+        shell: bash
+        env:
+          MCP_URL: https://mysimon-undo-congressional-reliability.trycloudflare.com/mcp
+        run: |
+          set -euo pipefail
+          mkdir -p probe
+          init='{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"arena-probe","version":"1.0.0"}}}'
+          list='{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'
+          headers=probe/initialize.headers
+          curl --fail-with-body --retry 3 --retry-all-errors --connect-timeout 20 --max-time 90 \
+            -sS -D "$headers" -o probe/initialize.response \
+            "$MCP_URL" \
+            -H 'Accept: application/json, text/event-stream' \
+            -H 'Content-Type: application/json' \
+            --data-raw "$init"
+          session="$(awk 'BEGIN{IGNORECASE=1} /^mcp-session-id:/ {sub(/^[^:]*:[[:space:]]*/, ""); gsub(/\r/, ""); print; exit}' "$headers")"
+          {
+            echo "session=${session:-<none>}"
+            echo '--- response headers ---'
+            cat "$headers"
+          } > probe/metadata.txt
+          if [[ -n "$session" ]]; then
+            curl --fail-with-body --retry 3 --retry-all-errors --connect-timeout 20 --max-time 90 \
+              -sS -D probe/tools-list.headers -o probe/tools-list.response \
+              "$MCP_URL" \
+              -H 'Accept: application/json, text/event-stream' \
+              -H 'Content-Type: application/json' \
+              -H "Mcp-Session-Id: $session" \
+              --data-raw "$list"
+          else
+            curl --fail-with-body --retry 3 --retry-all-errors --connect-timeout 20 --max-time 90 \
+              -sS -D probe/tools-list.headers -o probe/tools-list.response \
+              "$MCP_URL" \
+              -H 'Accept: application/json, text/event-stream' \
+              -H 'Content-Type: application/json' \
+              --data-raw "$list"
+          fi
+      - name: Upload MCP responses
+        uses: actions/upload-artifact@v4
+        with:
+          name: remote-mcp-probe
+          path: probe/
+          if-no-files-found: error
