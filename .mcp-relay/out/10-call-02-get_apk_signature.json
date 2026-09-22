@@ -1,0 +1,21 @@
+{
+  "tool": "get_apk_signature",
+  "arguments": {
+    "apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk"
+  },
+  "status": 200,
+  "error": null,
+  "rpc": {
+    "jsonrpc": "2.0",
+    "id": 4,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "APK Signature Certificates:\n\n--- Certificate [1] ---\nSubject: CN=Anh Pham,OU=APKMODY,O=APKMODY,L=Beasley,ST=TX,C=Texas\nIssuer: CN=Anh Pham,OU=APKMODY,O=APKMODY,L=Beasley,ST=TX,C=Texas\nValid Until: Tue Dec 18 09:30:59 GMT+05:30 2046\nSHA-1: 1C:C6:3A:91:D4:47:91:8E:EA:7E:38:04:2C:54:E6:06:8D:CA:EA:E3\nSHA-256: 35:80:20:B0:ED:9D:91:0C:3E:B4:E0:3E:26:1E:B3:40:60:48:33:F8:BD:C7:5E:23:6D:96:5E:80:E6:3A:56:DE\n\n"
+        }
+      ]
+    }
+  },
+  "text": "APK Signature Certificates:\n\n--- Certificate [1] ---\nSubject: CN=Anh Pham,OU=APKMODY,O=APKMODY,L=Beasley,ST=TX,C=Texas\nIssuer: CN=Anh Pham,OU=APKMODY,O=APKMODY,L=Beasley,ST=TX,C=Texas\nValid Until: Tue Dec 18 09:30:59 GMT+05:30 2046\nSHA-1: 1C:C6:3A:91:D4:47:91:8E:EA:7E:38:04:2C:54:E6:06:8D:CA:EA:E3\nSHA-256: 35:80:20:B0:ED:9D:91:0C:3E:B4:E0:3E:26:1E:B3:40:60:48:33:F8:BD:C7:5E:23:6D:96:5E:80:E6:3A:56:DE\n\n"
+}
