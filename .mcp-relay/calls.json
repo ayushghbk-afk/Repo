@@ -1,0 +1,39 @@
+{
+  "calls": [
+    {
+      "tool": "read_axml_file",
+      "arguments": {
+        "apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk",
+        "filePath": "AndroidManifest.xml",
+        "startLine": 1,
+        "endLine": 120
+      },
+      "timeout": 180
+    },
+    {
+      "tool": "get_apk_signature",
+      "arguments": {
+        "apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk"
+      },
+      "timeout": 180
+    },
+    {
+      "tool": "list_apk_files",
+      "arguments": {
+        "apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk",
+        "maxResults": 120
+      },
+      "timeout": 240
+    },
+    {
+      "tool": "query_arsc_resources",
+      "arguments": {
+        "apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk",
+        "resourceType": "string",
+        "query": "app_name",
+        "limit": 20
+      },
+      "timeout": 240
+    }
+  ]
+}

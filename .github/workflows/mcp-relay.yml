@@ -10,6 +10,7 @@ on:
     paths:
       - '.mcp-relay/trigger'
       - '.mcp-relay/relay.py'
+      - '.mcp-relay/calls.json'
       - '.github/workflows/mcp-relay.yml'
   workflow_dispatch:
     inputs:
