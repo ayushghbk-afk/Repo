@@ -1,0 +1,47 @@
+[09:43:36] GET /          -> 200 application/json; charset=utf-8
+[09:43:37] GET /mcp       -> 200 application/json; charset=utf-8
+[09:43:38] GET /sse       -> 200 application/json; charset=utf-8
+[09:43:38] GET /messages  -> 200 application/json; charset=utf-8
+[09:43:38] GET /health    -> 200 application/json; charset=utf-8
+[09:43:38] saved 00-get-probes.json (887 bytes)
+[09:43:39] INITIALIZE OK via /mcp (protocol 2025-06-18) session=None
+[09:43:39] saved 01-initialize-attempts.json (428 bytes)
+[09:43:39] saved 02-initialize-result.json (234 bytes)
+[09:43:39] tools: {"jsonrpc": "2.0", "id": 2, "result": {"tools": [{"name": "list_apk_files", "description": "Maps the internal directory structure of the APK archive.", "inputSchema": {"type": "object", "properties": {"apkPath": {"type": "string"}, "pathFilter": {"type": "string", "description": "Optional directory 
+[09:43:39] resources: {"jsonrpc": "2.0", "id": 2, "error": {"code": -32601, "message": "Unsupported method schema: resources/list"}}
+[09:43:40] resource_templates: {"jsonrpc": "2.0", "id": 2, "error": {"code": -32601, "message": "Unsupported method schema: resources/templates/list"}}
+[09:43:40] prompts: {"jsonrpc": "2.0", "id": 2, "error": {"code": -32601, "message": "Unsupported method schema: prompts/list"}}
+[09:43:40] saved 03-capabilities.json (18832 bytes)
+[09:43:40] skip (needs args ['apkPath']): list_apk_files
+[09:43:40] skip (needs args ['apkPath', 'filePath']): read_axml_file
+[09:43:40] skip (needs args ['apkPath', 'filePath']): read_raw_file
+[09:43:40] skip (needs args ['apkPath']): query_arsc_resources
+[09:43:40] skip (needs args ['apkPath']): get_apk_signature
+[09:43:40] skip (needs args ['filterQuery']): list_loaded_classes
+[09:43:40] skip (needs args ['classDescriptor']): decompile_class
+[09:43:40] skip (needs args ['query']): search_bytecode
+[09:43:40] skip (needs args ['smaliCode']): explain_smali
+[09:43:40] skip (needs args ['classDescriptor', 'methodSignature']): analyze_control_flow
+[09:43:40] skip (needs args ['classDescriptor', 'methodSignature']): analyze_call_graph
+[09:43:40] skip (needs args ['action']): manage_bookmarks
+[09:43:40] skip (needs args ['operation', 'input']): decode_data
+[09:43:40] skip (needs args ['action']): manage_global_notes
+[09:43:40] called list_workspace_files -> {"jsonrpc": "2.0", "id": 3, "result": {"content": [{"type": "text", "text": "[\n  {\n    \"filename\": \"source_0_base.apk\",\n    \"path\": \"\\/data\\/user\\/0\\/com.sina.javadecompiler\\/cache\\/so
+[09:43:40] skip (needs args ['apkPath', 'entryPath']): load_binary
+[09:43:40] called list_binary_functions -> {"jsonrpc": "2.0", "id": 3, "result": {"content": [{"type": "text", "text": "Error: No binary loaded. Use 'load_binary' first."}]}}
+[09:43:40] skip (needs args ['address', 'viewMode']): decompile_binary_function
+[09:43:40] skip (needs args ['query', 'mode']): binary_search
+[09:43:41] called get_binary_metadata -> {"jsonrpc": "2.0", "id": 3, "result": {"content": [{"type": "text", "text": "Error: No binary loaded."}]}}
+[09:43:41] skip (needs args ['address']): get_function_properties
+[09:43:41] skip (needs args ['address']): get_xrefs
+[09:43:41] skip (looks mutating): rename_function
+[09:43:41] skip (needs args ['address', 'comment']): add_comment
+[09:43:41] skip (needs args ['address']): inspect_data
+[09:43:41] skip (looks mutating): r2_execute
+[09:43:41] skip (needs args ['apkPath']): analyze_il2cpp
+[09:43:41] skip (needs args ['apkPath']): analyze_unflutter
+[09:43:41] called clear_native_cache -> {"jsonrpc": "2.0", "id": 3, "result": {"content": [{"type": "text", "text": "Memory cleared."}]}}
+[09:43:41] saved 04-tool-calls.json (1304 bytes)
+[09:43:41] saved 05-resource-reads.json (2 bytes)
+[09:43:41] saved 99-log.txt (3725 bytes)
+[09:43:41] done

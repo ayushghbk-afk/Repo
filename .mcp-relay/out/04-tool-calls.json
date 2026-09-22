@@ -1,0 +1,66 @@
+[
+  {
+    "tool": "list_workspace_files",
+    "arguments": {},
+    "result": {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "[\n  {\n    \"filename\": \"source_0_base.apk\",\n    \"path\": \"\\/data\\/user\\/0\\/com.sina.javadecompiler\\/cache\\/source_0_base.apk\",\n    \"size_bytes\": 178934502\n  }\n]"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "tool": "list_binary_functions",
+    "arguments": {},
+    "result": {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Error: No binary loaded. Use 'load_binary' first."
+          }
+        ]
+      }
+    }
+  },
+  {
+    "tool": "get_binary_metadata",
+    "arguments": {},
+    "result": {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Error: No binary loaded."
+          }
+        ]
+      }
+    }
+  },
+  {
+    "tool": "clear_native_cache",
+    "arguments": {},
+    "result": {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Memory cleared."
+          }
+        ]
+      }
+    }
+  }
+]
