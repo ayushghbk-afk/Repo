@@ -36,7 +36,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Test MCP server
         run: ./mcp-server/scripts/test.sh
-      - name: Check tracked files for obvious secrets and tunnel hosts
+      - name: Check tracked files for obvious secrets
         shell: bash
         run: |
           set -euo pipefail
