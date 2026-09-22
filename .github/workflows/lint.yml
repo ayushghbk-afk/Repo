@@ -1,0 +1,55 @@
+name: Lint
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - arena/**
+    paths-ignore:
+      - "stryker/**"
+      - "ci-artifacts/**"
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - "stryker/**"
+      - "ci-artifacts/**"
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Android lint and unit tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make Gradle executable
+        run: chmod +x gradlew
+
+      - name: Run Android lint
+        run: ./gradlew lintDebug --no-daemon
+
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest --no-daemon
+
+      - name: Upload lint report
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report
+          path: app/build/reports/lint-results-debug.html
+          if-no-files-found: warn
