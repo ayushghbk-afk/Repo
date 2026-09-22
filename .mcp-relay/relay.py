@@ -25,6 +25,7 @@ BASE = os.environ.get(
     "MCP_URL", "https://mysimon-undo-congressional-reliability.trycloudflare.com"
 ).rstrip("/")
 OUT = os.path.join(HERE, "out")
+MAX_TEXT = 200000
 CALLS_FILE = os.path.join(HERE, "calls.json")
 os.makedirs(OUT, exist_ok=True)
 
@@ -156,6 +157,8 @@ if os.path.exists(CALLS_FILE):
                 timeout=int(call.get("timeout", 300)))
         val = (r.get("parsed") or {}).get("value")
         text = tool_text(val)
+        if text and len(text) > MAX_TEXT:
+            text = text[:MAX_TEXT] + "\n...[truncated by relay]"
         entry = {"tool": tool, "arguments": args, "status": r.get("status"),
                  "error": r.get("error"), "rpc": val, "text": text}
         results.append(entry)

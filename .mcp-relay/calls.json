@@ -5,15 +5,18 @@
       "arguments": {
         "apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk",
         "filePath": "AndroidManifest.xml",
-        "startLine": 1,
-        "endLine": 120
+        "startLine": 121,
+        "endLine": 520
       },
       "timeout": 180
     },
     {
-      "tool": "get_apk_signature",
+      "tool": "read_axml_file",
       "arguments": {
-        "apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk"
+        "apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk",
+        "filePath": "AndroidManifest.xml",
+        "startLine": 521,
+        "endLine": 954
       },
       "timeout": 180
     },
@@ -21,19 +24,44 @@
       "tool": "list_apk_files",
       "arguments": {
         "apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk",
-        "maxResults": 120
+        "pathFilter": "lib",
+        "maxResults": 150
       },
       "timeout": 240
+    },
+    {
+      "tool": "list_apk_files",
+      "arguments": {
+        "apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk",
+        "pathFilter": "assets",
+        "maxResults": 150
+      },
+      "timeout": 240
+    },
+    {
+      "tool": "list_loaded_classes",
+      "arguments": { "filterQuery": "apkmody", "limit": 50 },
+      "timeout": 300
+    },
+    {
+      "tool": "list_loaded_classes",
+      "arguments": { "filterQuery": "com.aim.racing", "limit": 120 },
+      "timeout": 300
+    },
+    {
+      "tool": "search_bytecode",
+      "arguments": { "query": "apkmody", "maxResults": 30 },
+      "timeout": 300
     },
     {
       "tool": "query_arsc_resources",
       "arguments": {
         "apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk",
         "resourceType": "string",
-        "query": "app_name",
-        "limit": 20
+        "query": "mod",
+        "limit": 40
       },
-      "timeout": 240
+      "timeout": 300
     }
   ]
 }
