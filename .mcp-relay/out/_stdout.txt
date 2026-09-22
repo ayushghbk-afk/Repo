@@ -1,30 +1,24 @@
-[09:53:08] initialize OK via /mcp (2025-06-18)
-[09:53:08] saved 02-initialize-result.json (234 bytes)
-[09:53:08] call 1/8 read_axml_file {"apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk", "filePath": "AndroidManifest.xml", "startLine": 121, "endLine": 520}
-[09:53:09]    -> // [PAGINATED] Returning structural matrix lines 121 to 520 out of 954 total lines         </intent>         <intent>             <action                 android:name="android.intent.action.MAIN" />         </intent>         <intent>             <action                 android:name="android.intent.a
-[09:53:09] saved 10-call-01-read_axml_file.json (40966 bytes)
-[09:53:09] call 2/8 read_axml_file {"apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk", "filePath": "AndroidManifest.xml", "startLine": 521, "endLine": 954}
-[09:53:09]    -> // [PAGINATED] Returning structural matrix lines 521 to 954 out of 954 total lines             android:configChanges="0x5b0" />         <service             android:name="androidx.credentials.playservices.CredentialProviderMetadataHolder"             android:enabled="true"             android:export
-[09:53:09] saved 10-call-02-read_axml_file.json (41702 bytes)
-[09:53:09] call 3/8 list_apk_files {"apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk", "pathFilter": "lib", "maxResults": 150}
-[09:53:10]    -> Virtual directory mapped. Isolated 54 nodes: [FILE] lib/arm64-v8a/libFirebaseCppAnalytics.so [FILE] lib/arm64-v8a/libFirebaseCppApp-12_10_1.so [FILE] lib/arm64-v8a/libFirebaseCppAuth.so [FILE] lib/arm64-v8a/libFirebaseCppCrashlytics.so [FILE] lib/arm64-v8a/libFirebaseCppRemoteConfig.so [FILE] lib/ar
-[09:53:10] saved 10-call-03-list_apk_files.json (5217 bytes)
-[09:53:10] call 4/8 list_apk_files {"apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk", "pathFilter": "assets", "maxResults": 150}
-[09:53:10]    -> Virtual directory mapped. Isolated 54 nodes: [FILE] assets/Bundles/car_003 [FILE] assets/Bundles/car_004 [FILE] assets/Bundles/car_005 [FILE] assets/Bundles/car_007 [FILE] assets/Bundles/car_023 [FILE] assets/Bundles/car_030 [FILE] assets/Bundles/car_032 [FILE] assets/Bundles/car_041 [FILE] assets/B
-[09:53:10] saved 10-call-04-list_apk_files.json (4574 bytes)
-[09:53:10] call 5/8 list_loaded_classes {"filterQuery": "apkmody", "limit": 50}
-[09:53:11]    -> Query returned zero matches.
-[09:53:11] saved 10-call-05-list_loaded_classes.json (374 bytes)
-[09:53:11] call 6/8 list_loaded_classes {"filterQuery": "com.aim.racing", "limit": 120}
-[09:53:11]    -> Identified 21 class structures: Lcom/aim/racing/BuildConfig; Lcom/aim/racing/R$anim; Lcom/aim/racing/R$animator; Lcom/aim/racing/R$attr; Lcom/aim/racing/R$bool; Lcom/aim/racing/R$color; Lcom/aim/racing/R$dimen; Lcom/aim/racing/R$drawable; Lcom/aim/racing/R$id; Lcom/aim/racing/R$integer; Lcom/aim/rac
-[09:53:11] saved 10-call-06-list_loaded_classes.json (1502 bytes)
-[09:53:11] call 7/8 search_bytecode {"query": "apkmody", "maxResults": 30}
-[09:53:12]    -> Zero signatures matched.
-[09:53:12] saved 10-call-07-search_bytecode.json (361 bytes)
-[09:53:12] call 8/8 query_arsc_resources {"apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk", "resourceType": "string", "query": "mod", "limit": 40}
-[09:53:13]    -> ARSC Query Results (Limit: 40):  [string] abc_action_mode_done = "Done" [string] material_timepicker_clock_mode_description = "Switch to clock mode for the time input." [string] material_timepicker_text_input_mode_description = "Switch to text input mode for the time input." [string] mtrl_picker_tog
-[09:53:13] saved 10-call-08-query_arsc_resources.json (1329 bytes)
-[09:53:13] saved 11-calls-combined.json (96411 bytes)
-[09:53:13] saved 99-log.txt (3736 bytes)
-[09:53:13] done
-[09:53:13] saved 99-log.txt (3793 bytes)
+[10:01:01] initialize OK via /mcp (2025-06-18)
+[10:01:01] saved 02-initialize-result.json (234 bytes)
+[10:01:01] call 1/6 load_binary {"apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk", "entryPath": "lib/arm64-v8a/libil2cpp.so"}
+[10:01:25]    -> Binary extracted, loaded, and auto-analyzed successfully. Target: /data/user/0/com.sina.javadecompiler/cache/mcp_target_a0f26d27932d7b4a_libil2cpp.so Use 'list_binary_functions' to view the registry.
+[10:01:25] saved 10-call-01-load_binary.json (789 bytes)
+[10:01:25] call 2/6 get_binary_metadata {}
+[10:01:26]    -> {   "architecture": "arm",   "bits": 64,   "endian": "little",   "compiler": "Android (6454773 based on r365631c2) clang version 9.0.8 (https:\/\/android.googlesource.com\/toolchain\/llvm-project 98c85548958787",   "os": "android",   "stripped": true,   "sections": [     {       "name": ".note.gnu.b
+[10:01:26] saved 10-call-02-get_binary_metadata.json (8375 bytes)
+[10:01:26] call 3/6 binary_search {"query": "APKMODY", "mode": "string", "limit": 20}
+[10:01:27]    -> []
+[10:01:27] saved 10-call-03-binary_search.json (332 bytes)
+[10:01:27] call 4/6 binary_search {"query": "modmenu", "mode": "string", "limit": 20}
+[10:01:29]    -> []
+[10:01:29] saved 10-call-04-binary_search.json (332 bytes)
+[10:01:29] call 5/6 binary_search {"query": "ImGui", "mode": "string", "limit": 20}
+[10:01:30]    -> []
+[10:01:30] saved 10-call-05-binary_search.json (330 bytes)
+[10:01:30] call 6/6 list_binary_functions {"query": "mod", "limit": 30}
+[10:01:31]    -> {   "total_matched": 29,   "returned": 30,   "has_more": false,   "functions": [     {       "address": "0x00701b00",       "size": "16",       "name": "sym.imp.fchmod",       "category": "SYSTEM_IMPORTS"     },     {       "address": "0x00701fe0",       "size": "16",       "name": "sym.imp.fmod",  
+[10:01:31] saved 10-call-06-list_binary_functions.json (11478 bytes)
+[10:01:31] saved 11-calls-combined.json (21914 bytes)
+[10:01:31] saved 99-log.txt (1959 bytes)
+[10:01:31] done
+[10:01:31] saved 99-log.txt (2016 bytes)

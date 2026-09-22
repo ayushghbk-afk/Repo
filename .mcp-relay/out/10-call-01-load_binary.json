@@ -1,0 +1,22 @@
+{
+  "tool": "load_binary",
+  "arguments": {
+    "apkPath": "/data/user/0/com.sina.javadecompiler/cache/source_0_base.apk",
+    "entryPath": "lib/arm64-v8a/libil2cpp.so"
+  },
+  "status": 200,
+  "error": null,
+  "rpc": {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "Binary extracted, loaded, and auto-analyzed successfully. Target: /data/user/0/com.sina.javadecompiler/cache/mcp_target_a0f26d27932d7b4a_libil2cpp.so\nUse 'list_binary_functions' to view the registry."
+        }
+      ]
+    }
+  },
+  "text": "Binary extracted, loaded, and auto-analyzed successfully. Target: /data/user/0/com.sina.javadecompiler/cache/mcp_target_a0f26d27932d7b4a_libil2cpp.so\nUse 'list_binary_functions' to view the registry."
+}
