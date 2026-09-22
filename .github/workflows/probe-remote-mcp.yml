@@ -50,6 +50,14 @@ jobs:
               -H 'Content-Type: application/json' \
               --data-raw "$list"
           fi
+      - name: Print MCP responses for retrieval
+        shell: bash
+        run: |
+          echo '--- initialize response ---'
+          cat probe/initialize.response
+          echo
+          echo '--- tools/list response ---'
+          cat probe/tools-list.response
       - name: Upload MCP responses
         uses: actions/upload-artifact@v4
         with:
