@@ -1,0 +1,77 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/**/build/
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+local.properties
+captures/
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Keystore and signing material
+*.keystore
+*.jks
+*.p12
+*.pem
+*.key
+signing.properties
+
+# Generated files
+bin/
+gen/
+build/
+.externalNativeBuild
+.cxx
+
+# Output APK / AAB
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# Proguard
+proguard/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Native build artifacts (source lives under native/ and is tracked)
+*.o
+*.so
+*.a
+libs/
+
+# The engine payload under app/src/main/jniLibs/<abi>/ is fetched at build time by
+# scripts/fetch-engine.sh (GPL binaries, deliberately untracked). The generic *.so rule
+# above already ignores it; it is listed here so the intent is explicit.
+app/src/main/jniLibs/
+dist/rootfs/layers/
+dist/rootfs/manifests/**.sig
+
+# Android Reverse Engineering MCP runtime state and extracted analysis data
+/mcp-server/.cache/
+/mcp-server/workspace/
+/mcp-server/*.egg-info/
+/mcp-server/.venv/
+/mcp-server/__pycache__/
+/mcp-server/**/__pycache__/
+/mcp-server/.pytest_cache/
+*.py[cod]
+
+# Uploaded Stryker source archive (vendored under /stryker)
+/strykerapp-main.zip

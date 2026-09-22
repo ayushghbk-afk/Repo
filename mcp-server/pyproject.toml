@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "android-reverse-mcp"
+version = "5.8.0"
+description = "Configurable HTTP MCP server for Android and native reverse engineering"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+android-reverse-mcp = "mcp_server.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["mcp_server*"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
